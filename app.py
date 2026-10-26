@@ -117,5 +117,31 @@ if api_key:
                     del st.session_state["datos"]
                 else:
                     st.error("No se encontró el archivo 'Formato_606.xlsm' en el directorio.")
+
+import time
+
+# Dentro de la función o bloque donde presionas "Extraer Datos con Gemini"
+if st.button("⚡ Extraer Datos con Gemini"):
+    with st.spinner("Procesando imagen con Gemini..."):
+        max_retries = 3
+        success = False
+        
+        for attempt in range(max_retries):
+            try:
+                # Llamada a la API con el modelo actualizado
+                response = model.generate_content([prompt, image])
+                success = True
+                break  # Si tiene éxito, sale del bucle
+            except Exception as e:
+                if "503" in str(e) and attempt < max_retries - 1:
+                    time.sleep(2)  # Espera 2 segundos si el servidor de Google está saturado
+                    continue
+                else:
+                    st.error(f"Error al procesar con Gemini: {e}")
+                    break
+        
+        if success:
+            st.success("¡Datos extraídos con éxito!")
+            # Aquí continúa tu código normal para mostrar y guardar los datos en el Formato 606
 else:
     st.warning("Ingresa tu clave de API para comenzar.")
